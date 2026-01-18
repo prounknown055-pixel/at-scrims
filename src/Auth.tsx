@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, ASSETS } from '../constants';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, ASSETS } from './constants';
 
 interface AuthProps {
   onLogin: (email: string, name: string) => void;
