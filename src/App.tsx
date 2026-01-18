@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Tournament, Registration, RegistrationStatus, GameType, ChatMessage, AppSettings, WithdrawalRequest } from './types';
 import { ADMIN_EMAIL, GAMES, ASSETS } from './constants';
-import Navbar from './components/Navbar';
-import Auth from './components/Auth';
-import TournamentCard from './components/TournamentCard';
-import AdminPanel from './components/AdminPanel';
-import JoinModal from './components/JoinModal';
+import Navbar from './Navbar';
+import Auth from './Auth';
+import TournamentCard from './TournamentCard';
+import AdminPanel from './AdminPanel';
+import JoinModal from './JoinModal';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
