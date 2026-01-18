@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tournament, Registration, RegistrationStatus, GameType, ChatMessage, AppSettings, WithdrawalRequest } from '../types';
-import { GAMES, ASSETS } from '../constants';
+import { GAMES, ASSETS } from './constants';
 
 interface AdminPanelProps {
   tournaments: Tournament[];
