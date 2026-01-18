@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tournament, RegistrationStatus } from '../types';
-import { ASSETS } from '../constants';
+import { ASSETS } from './constants';
 
 interface TournamentCardProps {
   tournament: Tournament;
