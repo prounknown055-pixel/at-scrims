@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../supabaseClient'; // Supabase connection
+import React, { useState, useRef } from 'react';
+import { supabase } from '../supabaseClient';
 
 interface AuthProps {
   onLogin: (email: string, name: string) => void;
@@ -12,10 +12,8 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [error, setError] = useState('');
   
-  // Audio setup
   const bgmRef = useRef<HTMLAudioElement | null>(null);
 
-  // --- 1. Sound & Touch Effects ---
   const playTap = () => {
     const audio = new Audio('/tap.mp3'); 
     audio.volume = 0.5;
@@ -24,11 +22,10 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
 
   const startBGM = () => {
     if (bgmRef.current) {
-      bgmRef.current.play().catch(() => console.log("User interaction needed for audio"));
+      bgmRef.current.play().catch(() => {});
     }
   };
 
-  // --- 2. Backend Social Login (Supabase) ---
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     playTap();
     const { error } = await supabase.auth.signInWithOAuth({
@@ -38,13 +35,11 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
     if (error) setError(error.message);
   };
 
-  // --- 3. High Security Admin Logic ---
   const handleAdminAuth = (e: React.FormEvent) => {
     e.preventDefault();
     playTap();
     setError('');
     
-    // Fixed Admin Credentials as requested
     const ADMIN_ID = "tournamentsakamao@gmail.com";
     const ADMIN_PW = "musicstudio250@gmail.com";
 
@@ -57,24 +52,23 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#020617] px-4 relative overflow-hidden" onClick={startBGM}>
-      {/* Background Music */}
       <audio ref={bgmRef} src="/bgm.mp3" loop />
 
+      {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-600/10 rounded-full blur-[160px] pointer-events-none animate-pulse"></div>
       
-      <div className="max-w-md w-full space-y-8 bg-slate-900/60 backdrop-blur-2xl p-10 rounded-[48px] border border-cyan-500/20 shadow-[0_32px_64px_rgba(0,0,0,0.6)] relative overflow-hidden z-10 animate-in fade-in zoom-in duration-500">
+      <div className="max-w-md w-full space-y-8 bg-slate-900/60 backdrop-blur-2xl p-10 rounded-[48px] border border-cyan-500/20 shadow-2xl relative overflow-hidden z-10 transition-all duration-700 ease-out">
         
         <div className="text-center relative">
           <div className="relative inline-block mb-6">
             <div className="absolute inset-0 bg-cyan-500/30 blur-[40px] rounded-full"></div>
             <div className="w-56 h-56 mx-auto relative z-10 flex items-center justify-center">
-              {/* Image with Touch Effect & Animation */}
               <img 
                 src="/logo.png" 
                 alt="AT Logo" 
-                className="w-full h-full object-contain logo-glow transform hover:scale-105 active:scale-90 transition-all duration-300 ease-out animate-bounce-subtle cursor-pointer" 
+                className="w-full h-full object-contain transform hover:scale-105 active:scale-90 transition-all duration-300 cursor-pointer" 
                 onClick={playTap}
-                onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/150'; }}
+                onError={(e) => { (e.target as HTMLImageElement).src = logoUrl || 'https://via.placeholder.com/150'; }}
               />
             </div>
           </div>
@@ -88,21 +82,19 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
 
         {!showAdminLogin ? (
           <div className="space-y-4 pt-6 relative">
-            {/* Google Button with Animation */}
             <button 
               onClick={() => handleSocialLogin('google')}
-              className="at-btn w-full flex items-center justify-center gap-4 px-6 py-5 bg-white text-slate-950 rounded-2xl font-black shadow-xl transform active:scale-95 transition-transform hover:bg-slate-100"
+              className="w-full flex items-center justify-center gap-4 px-6 py-5 bg-white text-slate-950 rounded-2xl font-black shadow-xl transform active:scale-95 transition-all hover:bg-slate-100"
             >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt=""/>
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="G"/>
               Login with Google
             </button>
 
-            {/* Facebook Button with Animation */}
             <button 
               onClick={() => handleSocialLogin('facebook')}
-              className="at-btn w-full flex items-center justify-center gap-4 px-6 py-5 bg-[#1877F2] text-white rounded-2xl font-black shadow-xl transform active:scale-95 transition-transform hover:brightness-110"
+              className="w-full flex items-center justify-center gap-4 px-6 py-5 bg-[#1877F2] text-white rounded-2xl font-black shadow-xl transform active:scale-95 transition-all hover:brightness-110"
             >
-              <i className="fab fa-facebook text-lg"></i>
+              <span className="text-xl">f</span>
               Login with Facebook
             </button>
 
@@ -118,9 +110,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleAdminAuth} className="space-y-6 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <form onSubmit={handleAdminAuth} className="space-y-6 pt-6 transition-all duration-500">
             {error && (
-              <div className="bg-rose-500/10 border border-rose-500/30 p-4 rounded-xl text-center shadow-lg">
+              <div className="bg-rose-500/10 border border-rose-500/30 p-4 rounded-xl text-center">
                 <p className="text-rose-400 text-[10px] font-black uppercase tracking-widest">{error}</p>
               </div>
             )}
@@ -134,7 +126,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
                   required
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-5 text-white focus:border-cyan-500 outline-none font-bold transition-all"
+                  className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-5 text-white focus:border-cyan-500 outline-none font-bold"
                 />
               </div>
 
@@ -146,14 +138,14 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
                   required
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
-                  className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-5 text-white focus:border-cyan-500 outline-none font-bold transition-all"
+                  className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-5 text-white focus:border-cyan-500 outline-none font-bold"
                 />
               </div>
             </div>
 
             <button 
               type="submit"
-              className="at-btn w-full bg-cyan-600 text-white py-5 rounded-2xl font-black shadow-2xl uppercase tracking-[0.1em] text-sm transform active:scale-95 transition-transform"
+              className="w-full bg-cyan-600 text-white py-5 rounded-2xl font-black shadow-2xl uppercase tracking-[0.1em] text-sm transform active:scale-95 transition-all"
             >
               Verify & Enter
             </button>
@@ -167,16 +159,10 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
             </button>
           </form>
         )}
-        
-        <div className="pt-8 border-t border-slate-800/50">
-          <p className="text-center text-[9px] text-slate-600 font-black uppercase tracking-[0.15em] leading-relaxed">
-            Authorized Personnel Only<br/>Security Protocols Active
-          </p>
-        </div>
       </div>
     </div>
   );
 };
 
 export default Auth;
-            
+              
