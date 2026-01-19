@@ -1,17 +1,17 @@
-import React from "react";
-import { User } from "./types";
+import React from 'react';
+import { User } from './types';
 
-interface NavbarProps {
+interface Props {
   user: User;
   onLogout: () => void;
-  onNavigate: (view: "home" | "admin" | "wallet") => void;
-  currentView: "home" | "admin" | "wallet";
+  onNavigate: (view: 'home' | 'admin' | 'wallet') => void;
+  currentView: 'home' | 'admin' | 'wallet';
   isMusicPlaying: boolean;
   onToggleMusic: () => void;
   logoUrl: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({
+const Navbar: React.FC<Props> = ({
   user,
   onLogout,
   onNavigate,
@@ -20,42 +20,81 @@ const Navbar: React.FC<NavbarProps> = ({
   onToggleMusic,
   logoUrl,
 }) => {
+  /* 🔊 TAP SOUND */
+  const playClick = () => {
+    const audio = document.getElementById(
+      'global-click-audio'
+    ) as HTMLAudioElement | null;
+
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+  };
+
+  const handleNav = (view: 'home' | 'admin' | 'wallet') => {
+    playClick();
+    onNavigate(view);
+  };
+
+  const handleLogout = () => {
+    playClick();
+    onLogout();
+  };
+
+  const handleMusicToggle = () => {
+    playClick();
+    onToggleMusic();
+  };
+
   return (
-    <nav className="sticky top-0 z-50 bg-[#020617]/90 backdrop-blur border-b border-slate-800">
+    <header className="w-full border-b border-slate-800 bg-[#020617]">
+      {/* 🔊 GLOBAL CLICK SOUND (SINGLE SOURCE) */}
+      <audio id="global-click-audio" src="/click.mp3" preload="auto" />
+
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* LEFT */}
         <div className="flex items-center gap-3">
           <img
             src={logoUrl}
-            alt="Logo"
-            className="w-9 h-9"
+            alt="logo"
+            className="w-10 h-10 object-contain select-none"
             draggable={false}
           />
-          <span className="font-semibold text-lg">
-            AT Scrims
-          </span>
+          <span className="font-bold text-lg">AT Scrims</span>
         </div>
 
-        {/* CENTER */}
-        <div className="hidden md:flex items-center gap-6">
+        {/* CENTER NAV */}
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => onNavigate("home")}
-            className={`text-sm font-medium transition ${
-              currentView === "home"
-                ? "text-cyan-400"
-                : "text-slate-300 hover:text-white"
+            onClick={() => handleNav('home')}
+            className={`px-3 py-1 rounded-lg transition-transform active:scale-95 ${
+              currentView === 'home'
+                ? 'bg-cyan-600'
+                : 'bg-slate-800'
             }`}
           >
             Home
           </button>
 
+          <button
+            onClick={() => handleNav('wallet')}
+            className={`px-3 py-1 rounded-lg transition-transform active:scale-95 ${
+              currentView === 'wallet'
+                ? 'bg-cyan-600'
+                : 'bg-slate-800'
+            }`}
+          >
+            Wallet
+          </button>
+
           {user.isAdmin && (
             <button
-              onClick={() => onNavigate("admin")}
-              className={`text-sm font-medium transition ${
-                currentView === "admin"
-                  ? "text-cyan-400"
-                  : "text-slate-300 hover:text-white"
+              onClick={() => handleNav('admin')}
+              className={`px-3 py-1 rounded-lg transition-transform active:scale-95 ${
+                currentView === 'admin'
+                  ? 'bg-red-600'
+                  : 'bg-slate-800'
               }`}
             >
               Admin
@@ -65,39 +104,27 @@ const Navbar: React.FC<NavbarProps> = ({
 
         {/* RIGHT */}
         <div className="flex items-center gap-3">
-          {/* Music */}
           <button
-            onClick={onToggleMusic}
-            title="Toggle Music"
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 transition"
+            onClick={handleMusicToggle}
+            className="px-3 py-1 rounded-lg bg-slate-800 transition-transform active:scale-95"
+            title="Music"
           >
-            <i
-              className={`fa-solid ${
-                isMusicPlaying ? "fa-volume-high" : "fa-volume-xmark"
-              }`}
-            />
+            {isMusicPlaying ? '🔊' : '🔇'}
           </button>
 
-          {/* User */}
-          <div className="hidden sm:flex flex-col text-right">
-            <span className="text-sm font-medium">
-              {user.name}
-            </span>
-            <span className="text-xs text-slate-400">
-              {user.email}
-            </span>
-          </div>
+          <span className="hidden sm:block text-sm text-slate-300">
+            {user.name}
+          </span>
 
-          {/* Logout */}
           <button
-            onClick={onLogout}
-            className="px-3 py-1.5 rounded-lg text-sm bg-red-600 hover:bg-red-700 transition font-medium"
+            onClick={handleLogout}
+            className="px-3 py-1 rounded-lg bg-slate-800 transition-transform active:scale-95"
           >
             Logout
           </button>
         </div>
       </div>
-    </nav>
+    </header>
   );
 };
 
