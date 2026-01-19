@@ -1,140 +1,104 @@
-import React, { useState } from "react";
-import { Tournament } from "./types";
+import React, { useState } from 'react';
+import { Tournament } from './types';
 
-interface JoinModalProps {
+interface Props {
   tournament: Tournament;
   onClose: () => void;
   onSubmit: (gameId: string, gameUid: string, txnId: string) => void;
 }
 
-const JoinModal: React.FC<JoinModalProps> = ({
-  tournament,
-  onClose,
-  onSubmit,
-}) => {
-  const [gameId, setGameId] = useState("");
-  const [gameUid, setGameUid] = useState("");
-  const [txnId, setTxnId] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+const JoinModal: React.FC<Props> = ({ tournament, onClose, onSubmit }) => {
+  const [gameId, setGameId] = useState('');
+  const [gameUid, setGameUid] = useState('');
+  const [txnId, setTxnId] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  if (!tournament) return null;
+  /* 🔊 TAP SOUND */
+  const playClick = () => {
+    const audio = document.getElementById(
+      'global-click-audio'
+    ) as HTMLAudioElement | null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+  };
 
-    if (!gameId.trim()) {
-      setError("Game ID is required");
+  const handleSubmit = () => {
+    playClick();
+
+    if (submitting) return;
+
+    if (!gameId || !gameUid || !txnId) {
+      alert('Please fill all fields');
       return;
     }
 
-    if (!gameUid.trim()) {
-      setError("Game UID is required");
-      return;
-    }
+    setSubmitting(true);
 
-    if (!txnId.trim()) {
-      setError("Transaction ID is required");
-      return;
-    }
+    onSubmit(
+      gameId.trim(),
+      gameUid.trim(),
+      txnId.trim()
+    );
 
-    setLoading(true);
+    setSubmitting(false);
+  };
 
-    // 🔐 Future: server / Supabase validation yahin lagegi
-    setTimeout(() => {
-      onSubmit(
-        gameId.trim(),
-        gameUid.trim(),
-        txnId.trim()
-      );
-      setLoading(false);
-    }, 500);
+  const handleClose = () => {
+    playClick();
+    onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="w-full max-w-md bg-[#020617] border border-slate-800 rounded-xl p-6">
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">
-            Join Tournament
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white"
-          >
-            ✕
-          </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+      {/* CLICK SOUND SOURCE */}
+      <audio id="global-click-audio" src="/click.mp3" preload="auto" />
+
+      <div className="relative bg-slate-900 rounded-2xl w-full max-w-md p-6 border border-slate-700">
+        {/* CLOSE */}
+        <button
+          onClick={handleClose}
+          className="absolute top-3 right-3 text-slate-400 text-xl active:scale-90 transition-transform"
+        >
+          ✕
+        </button>
+
+        <h2 className="text-xl font-bold mb-4 text-center">
+          Join {tournament.name}
+        </h2>
+
+        <div className="space-y-3">
+          <input
+            className="w-full px-4 py-2 rounded bg-slate-800 outline-none"
+            placeholder="Game ID"
+            value={gameId}
+            onChange={(e) => setGameId(e.target.value)}
+          />
+
+          <input
+            className="w-full px-4 py-2 rounded bg-slate-800 outline-none"
+            placeholder="Game UID"
+            value={gameUid}
+            onChange={(e) => setGameUid(e.target.value)}
+          />
+
+          <input
+            className="w-full px-4 py-2 rounded bg-slate-800 outline-none"
+            placeholder="Transaction ID"
+            value={txnId}
+            onChange={(e) => setTxnId(e.target.value)}
+          />
         </div>
 
-        {/* TOURNAMENT INFO */}
-        <div className="mb-4 text-sm text-slate-300 space-y-1">
-          <div className="flex justify-between">
-            <span>Game</span>
-            <span>{tournament.game}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Entry Fee</span>
-            <span>₹{tournament.entryFee}</span>
-          </div>
-        </div>
-
-        {/* FORM */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-sm text-slate-300">
-              In-Game ID
-            </label>
-            <input
-              type="text"
-              value={gameId}
-              onChange={(e) => setGameId(e.target.value)}
-              className="w-full mt-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:outline-none focus:border-cyan-500"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm text-slate-300">
-              In-Game UID
-            </label>
-            <input
-              type="text"
-              value={gameUid}
-              onChange={(e) => setGameUid(e.target.value)}
-              className="w-full mt-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:outline-none focus:border-cyan-500"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm text-slate-300">
-              Payment Transaction ID
-            </label>
-            <input
-              type="text"
-              value={txnId}
-              onChange={(e) => setTxnId(e.target.value)}
-              className="w-full mt-1 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:outline-none focus:border-cyan-500"
-              disabled={loading}
-            />
-          </div>
-
-          {error && (
-            <div className="text-sm text-red-400">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition font-medium disabled:opacity-60"
-          >
-            {loading ? "Submitting..." : "Confirm Join"}
-          </button>
-        </form>
+        <button
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="at-btn w-full mt-6 py-3 rounded-xl bg-cyan-600 font-bold active:scale-95 transition-transform disabled:opacity-50"
+        >
+          {submitting ? 'Submitting...' : 'Confirm Join'}
+        </button>
       </div>
     </div>
   );
