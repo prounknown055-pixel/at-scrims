@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Tournament } from '../types';
+import { Tournament } from './types';
 import { ASSETS, PAYMENT_DETAILS } from './constants';
 
 interface JoinModalProps {
