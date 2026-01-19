@@ -1,194 +1,49 @@
-/* ===============================
-   GLOBAL RESET & BASE
-   =============================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+:root {
+  color-scheme: dark;
 }
 
-html,
 body {
   margin: 0;
   padding: 0;
-  width: 100%;
-  min-height: 100%;
-  background-color: #020617;
-  color: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: #020617; /* Dark Slate Blue */
+  color: white;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
 }
 
-#root {
-  min-height: 100vh;
-}
-
-/* ===============================
-   SCROLLBAR (HIDDEN BUT USABLE)
-   =============================== */
-
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+  width: 6px;
 }
 
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+::-webkit-scrollbar-track {
+  background: #020617;
 }
 
-/* ===============================
-   BUTTON INTERACTION (GLOBAL FIX)
-   =============================== */
-
-button,
-.at-btn {
-  pointer-events: auto;
-  user-select: none;
-  cursor: pointer;
-  position: relative;
-  transition: transform 0.15s ease, filter 0.15s ease;
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
 }
 
-button:active,
-.at-btn:active {
-  transform: scale(0.96);
-  filter: brightness(0.9);
+::-webkit-scrollbar-thumb:hover {
+  background: #0ea5e9;
 }
 
-/* DISABLED SAFETY */
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  filter: none;
-}
-
-/* ===============================
-   TOUCH RIPPLE EFFECT (NO UI CHANGE)
-   =============================== */
-
-.at-btn::after,
-button::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.08);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.at-btn:active::after,
-button:active::after {
-  opacity: 1;
-}
-
-/* ===============================
-   GLASS / CARD EFFECT
-   =============================== */
-
+/* Glassmorphism Effect */
 .glass {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* ===============================
-   BACKGROUND GRID (HOME UI)
-   =============================== */
-
-.bg-grid {
-  background-image: radial-gradient(
-    circle at 2px 2px,
-    rgba(0, 180, 216, 0.05) 1px,
-    transparent 0
-  );
-  background-size: 24px 24px;
+/* Tap Animation */
+.tap-active:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
 }
 
-/* ===============================
-   INPUTS & FORMS
-   =============================== */
-
-input,
-select,
-textarea {
-  outline: none;
-  color: #ffffff;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #64748b;
-}
-
-/* ===============================
-   MODAL FIX (JoinModal)
-   =============================== */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 50;
-  pointer-events: auto;
-}
-
-/* ===============================
-   TEXT SELECTION
-   =============================== */
-
-::selection {
-  background-color: #22d3ee;
-  color: #020617;
-}
-
-/* ===============================
-   IMAGE / ICON SAFETY
-   =============================== */
-
-img {
-  max-width: 100%;
-  display: block;
-  pointer-events: none;
-  user-drag: none;
-}
-
-/* ===============================
-   AUDIO SUPPORT (READY)
-   =============================== */
-
-audio {
-  display: none;
-}
-
-/* ===============================
-   PERFORMANCE & ANIMATION SAFETY
-   =============================== */
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* ===============================
-   MOBILE FIXES
-   =============================== */
-
-@media (max-width: 640px) {
-  body {
-    overflow-x: hidden;
-  }
-
-  button,
-  .at-btn {
-    touch-action: manipulation;
-  }
-}
