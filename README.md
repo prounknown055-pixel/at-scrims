@@ -1,20 +1,33 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🎮 AT SCRIMS - Pro Gaming Tournament Platform
 
-# Run and deploy your AI Studio app
+AT SCRIMS ek advanced esports tournament management system hai jise gamers ke liye design kiya gaya hai. Ismein real-time database, wallet system aur immersive sound effects milte hain.
 
-This contains everything you need to run your app locally.
+## ✨ Key Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1YyoFnCCia1z_jL-tDzOHZv4YaiDp0i6f
+* **🎧 Immersive Experience:** Har touch par 'Tap' sound aur background mein gaming music.
+* **🛡️ Secure Admin Panel:** Tournaments add karne aur users ko manage karne ke liye dedicated dashboard.
+* **💰 Wallet System:** Players apna balance track kar sakte hain aur tournaments join kar sakte hain.
+* **📱 Responsive Design:** Mobile aur Desktop dono par 100% smooth chalta hai.
+* **⚡ Real-time Updates:** Supabase ke saath fast data loading.
 
-## Run Locally
+## 🛠️ Tech Stack
 
-**Prerequisites:**  Node.js
+- **Frontend:** React.js, Tailwind CSS, Framer Motion
+- **Backend/Database:** Supabase
+- **Icons:** Lucide React
+- **Deployment:** Netlify / Vercel
 
+## 🚀 Quick Setup
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. **Clone the Repo**
+2. **Install Dependencies:** `npm install`
+3. **Run Dev Server:** `npm run dev`
+
+## 📁 Project Structure
+
+- `src/`: Saara logic aur components.
+- `public/`: Sounds (`tap.mp3`, `bgm.mp3`) aur images.
+- `src/lib/`: Database connection files.
+
+---
+Developed with ❤️ for the Gaming Community.
