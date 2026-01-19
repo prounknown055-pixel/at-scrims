@@ -6,6 +6,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
@@ -41,18 +42,50 @@ body {
 }
 
 /* ===============================
-   BUTTON INTERACTION (USED EVERYWHERE)
+   BUTTON INTERACTION (GLOBAL FIX)
    =============================== */
 
+button,
 .at-btn {
-  position: relative;
+  pointer-events: auto;
+  user-select: none;
   cursor: pointer;
+  position: relative;
   transition: transform 0.15s ease, filter 0.15s ease;
 }
 
+button:active,
 .at-btn:active {
   transform: scale(0.96);
   filter: brightness(0.9);
+}
+
+/* DISABLED SAFETY */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+/* ===============================
+   TOUCH RIPPLE EFFECT (NO UI CHANGE)
+   =============================== */
+
+.at-btn::after,
+button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.at-btn:active::after,
+button:active::after {
+  opacity: 1;
 }
 
 /* ===============================
@@ -103,6 +136,7 @@ textarea::placeholder {
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   z-index: 50;
+  pointer-events: auto;
 }
 
 /* ===============================
@@ -121,10 +155,20 @@ textarea::placeholder {
 img {
   max-width: 100%;
   display: block;
+  pointer-events: none;
+  user-drag: none;
 }
 
 /* ===============================
-   ANIMATION SAFETY (NO JANK)
+   AUDIO SUPPORT (READY)
+   =============================== */
+
+audio {
+  display: none;
+}
+
+/* ===============================
+   PERFORMANCE & ANIMATION SAFETY
    =============================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -141,5 +185,10 @@ img {
 @media (max-width: 640px) {
   body {
     overflow-x: hidden;
+  }
+
+  button,
+  .at-btn {
+    touch-action: manipulation;
   }
 }
