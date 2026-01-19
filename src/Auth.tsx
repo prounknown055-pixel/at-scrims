@@ -1,155 +1,89 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, ASSETS } from './constants';
 
-interface Props {
+interface AuthProps {
   onLogin: (email: string, name: string) => void;
   logoUrl: string;
 }
 
-/* 🔒 ADMIN FIXED CREDENTIALS */
-const ADMIN_EMAIL = 'tournamentsakamao@gmail.com';
-const ADMIN_PASS = 'musicstudio250@gmail.com';
-
-const Auth: React.FC<Props> = ({ onLogin, logoUrl }) => {
+const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const isSubmitting = useRef(false);
+  const [name, setName] = useState('');
+  const [isAdminMode, setIsAdminMode] = useState(false);
 
-  /* 🔊 GLOBAL TAP SOUND */
-  const playClick = () => {
-    const audio = document.getElementById(
-      'global-click-audio'
-    ) as HTMLAudioElement | null;
-
-    if (audio) {
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-    }
+  const playTap = () => {
+    const audio = new Audio(ASSETS.clickSound);
+    audio.play().catch(() => {});
   };
 
-  /* ✅ MAIN LOGIN */
-  const handleLogin = () => {
-    playClick();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    playTap();
 
-    if (isSubmitting.current) return;
-    isSubmitting.current = true;
-
-    setError('');
-
-    if (!email.trim() || !name.trim()) {
-      setError('Fill all fields');
-      isSubmitting.current = false;
-      return;
-    }
-
-    /* 🔐 ADMIN STRICT CHECK */
-    if (email.trim().toLowerCase() === ADMIN_EMAIL) {
-      if (!password) {
-        setError('Admin password required');
-        isSubmitting.current = false;
-        return;
+    if (isAdminMode) {
+      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        onLogin(email, 'Super Admin');
+      } else {
+        alert('Galat Admin Password!');
       }
-
-      if (password !== ADMIN_PASS) {
-        setError('Admin password incorrect');
-        isSubmitting.current = false;
-        return;
-      }
+    } else {
+      if (!name || !email) return alert('Naam aur Email bhariye');
+      onLogin(email, name);
     }
-
-    onLogin(email.trim(), name.trim());
-    isSubmitting.current = false;
-  };
-
-  /* 🌐 GOOGLE LOGIN (CONTROLLED MOCK) */
-  const handleGoogleLogin = () => {
-    playClick();
-    if (isSubmitting.current) return;
-    isSubmitting.current = true;
-
-    onLogin('googleuser@gmail.com', 'Google User');
-    isSubmitting.current = false;
-  };
-
-  /* 🌐 FACEBOOK LOGIN (CONTROLLED MOCK) */
-  const handleFacebookLogin = () => {
-    playClick();
-    if (isSubmitting.current) return;
-    isSubmitting.current = true;
-
-    onLogin('facebookuser@gmail.com', 'Facebook User');
-    isSubmitting.current = false;
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#020617] text-white">
-      {/* 🔊 CLICK SOUND */}
-      <audio id="global-click-audio" src="/click.mp3" preload="auto" />
-
-      <div className="bg-slate-900 p-6 rounded-xl w-full max-w-sm border border-slate-700">
-        <div className="flex flex-col items-center gap-4 mb-4">
-          <img
-            src={logoUrl}
-            alt="logo"
-            className="w-20 h-20 object-contain"
-            draggable={false}
-          />
-          <h2 className="text-xl font-bold">Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-[#020617] p-4 font-sans">
+      <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
+        <div className="flex flex-col items-center mb-8">
+          <img src={logoUrl} alt="Logo" className="w-20 h-20 mb-4 animate-pulse" />
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            {isAdminMode ? 'Admin Access' : 'Welcome Player'}
+          </h2>
         </div>
 
-        {error && (
-          <div className="mb-3 text-red-400 text-sm text-center">
-            {error}
-          </div>
-        )}
-
-        <input
-          className="w-full mb-3 px-4 py-2 rounded bg-slate-800 outline-none"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <input
-          className="w-full mb-3 px-4 py-2 rounded bg-slate-800 outline-none"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        {/* 🔐 ADMIN PASSWORD ONLY */}
-        {email.trim().toLowerCase() === ADMIN_EMAIL && (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {!isAdminMode && (
+            <input
+              type="text"
+              placeholder="Aapka Naam"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-all"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          )}
           <input
-            type="password"
-            className="w-full mb-3 px-4 py-2 rounded bg-slate-800 outline-none"
-            placeholder="Admin Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type="email"
+            placeholder="Email Address"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-all"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
-        )}
+          {isAdminMode && (
+            <input
+              type="password"
+              placeholder="Admin Password"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-all"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-cyan-500/20"
+          >
+            {isAdminMode ? 'Login as Admin' : 'Start Playing'}
+          </button>
+        </form>
 
         <button
-          onClick={handleLogin}
-          className="w-full mb-3 py-2 rounded-xl bg-cyan-600 font-bold active:scale-95 transition-transform"
+          onClick={() => { playTap(); setIsAdminMode(!isAdminMode); }}
+          className="w-full mt-6 text-sm text-gray-400 hover:text-cyan-400 transition-colors"
         >
-          Login
+          {isAdminMode ? 'Back to Player Login' : 'Are you an Admin?'}
         </button>
-
-        <div className="flex gap-2">
-          <button
-            onClick={handleGoogleLogin}
-            className="flex-1 py-2 rounded-xl bg-red-600 font-bold active:scale-95 transition-transform"
-          >
-            Google
-          </button>
-          <button
-            onClick={handleFacebookLogin}
-            className="flex-1 py-2 rounded-xl bg-blue-600 font-bold active:scale-95 transition-transform"
-          >
-            Facebook
-          </button>
-        </div>
       </div>
     </div>
   );
