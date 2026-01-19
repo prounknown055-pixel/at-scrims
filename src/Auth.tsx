@@ -1,128 +1,155 @@
-import React, { useState } from 'react';
-import { supabase } from './supabaseClient';
+import React, { useState, useRef } from 'react';
 
 interface Props {
   onLogin: (email: string, name: string) => void;
   logoUrl: string;
 }
 
+/* 🔒 ADMIN FIXED CREDENTIALS */
 const ADMIN_EMAIL = 'tournamentsakamao@gmail.com';
-const ADMIN_PASS_EMAIL = 'musicstudio250@gmail.com';
+const ADMIN_PASS = 'musicstudio250@gmail.com';
 
 const Auth: React.FC<Props> = ({ onLogin, logoUrl }) => {
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [passEmail, setPassEmail] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const isSubmitting = useRef(false);
 
-  /* ---------------- GOOGLE LOGIN ---------------- */
-  const loginWithGoogle = async () => {
-    if (loading) return;
-    setLoading(true);
+  /* 🔊 GLOBAL TAP SOUND */
+  const playClick = () => {
+    const audio = document.getElementById(
+      'global-click-audio'
+    ) as HTMLAudioElement | null;
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-
-    if (error) {
-      alert(error.message);
-      setLoading(false);
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
     }
   };
 
-  /* ---------------- FACEBOOK LOGIN ---------------- */
-  const loginWithFacebook = async () => {
-    if (loading) return;
-    setLoading(true);
+  /* ✅ MAIN LOGIN */
+  const handleLogin = () => {
+    playClick();
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'facebook',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
 
-    if (error) {
-      alert(error.message);
-      setLoading(false);
-    }
-  };
+    setError('');
 
-  /* ---------------- MANUAL LOGIN (ADMIN ONLY) ---------------- */
-  const handleManualLogin = () => {
-    if (!name || !email || !passEmail) {
-      alert('All fields required');
+    if (!email.trim() || !name.trim()) {
+      setError('Fill all fields');
+      isSubmitting.current = false;
       return;
     }
 
-    if (
-      email.trim().toLowerCase() !== ADMIN_EMAIL ||
-      passEmail.trim().toLowerCase() !== ADMIN_PASS_EMAIL
-    ) {
-      alert('Invalid admin credentials');
-      return;
+    /* 🔐 ADMIN STRICT CHECK */
+    if (email.trim().toLowerCase() === ADMIN_EMAIL) {
+      if (!password) {
+        setError('Admin password required');
+        isSubmitting.current = false;
+        return;
+      }
+
+      if (password !== ADMIN_PASS) {
+        setError('Admin password incorrect');
+        isSubmitting.current = false;
+        return;
+      }
     }
 
     onLogin(email.trim(), name.trim());
+    isSubmitting.current = false;
+  };
+
+  /* 🌐 GOOGLE LOGIN (CONTROLLED MOCK) */
+  const handleGoogleLogin = () => {
+    playClick();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
+
+    onLogin('googleuser@gmail.com', 'Google User');
+    isSubmitting.current = false;
+  };
+
+  /* 🌐 FACEBOOK LOGIN (CONTROLLED MOCK) */
+  const handleFacebookLogin = () => {
+    playClick();
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
+
+    onLogin('facebookuser@gmail.com', 'Facebook User');
+    isSubmitting.current = false;
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#020617] text-white px-4">
-      <img
-        src={logoUrl}
-        alt="logo"
-        className="w-40 h-40 object-contain mb-8"
-        draggable={false}
-      />
+    <div className="min-h-screen flex items-center justify-center bg-[#020617] text-white">
+      {/* 🔊 CLICK SOUND */}
+      <audio id="global-click-audio" src="/click.mp3" preload="auto" />
 
-      <button
-        onClick={loginWithGoogle}
-        className="at-btn w-full max-w-xs bg-white text-black py-3 rounded-2xl font-bold mb-4"
-      >
-        <i className="fab fa-google mr-2"></i>
-        Continue with Google
-      </button>
+      <div className="bg-slate-900 p-6 rounded-xl w-full max-w-sm border border-slate-700">
+        <div className="flex flex-col items-center gap-4 mb-4">
+          <img
+            src={logoUrl}
+            alt="logo"
+            className="w-20 h-20 object-contain"
+            draggable={false}
+          />
+          <h2 className="text-xl font-bold">Login</h2>
+        </div>
 
-      <button
-        onClick={loginWithFacebook}
-        className="at-btn w-full max-w-xs bg-blue-600 text-white py-3 rounded-2xl font-bold mb-6"
-      >
-        <i className="fab fa-facebook mr-2"></i>
-        Continue with Facebook
-      </button>
+        {error && (
+          <div className="mb-3 text-red-400 text-sm text-center">
+            {error}
+          </div>
+        )}
 
-      {/* ADMIN LOGIN */}
-      <div className="w-full max-w-xs space-y-3">
         <input
+          className="w-full mb-3 px-4 py-2 rounded bg-slate-800 outline-none"
+          placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Admin Name"
-          className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none"
         />
 
         <input
+          className="w-full mb-3 px-4 py-2 rounded bg-slate-800 outline-none"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Admin Email"
-          className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none"
         />
 
-        <input
-          value={passEmail}
-          onChange={(e) => setPassEmail(e.target.value)}
-          placeholder="Admin Pass Email"
-          className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none"
-        />
+        {/* 🔐 ADMIN PASSWORD ONLY */}
+        {email.trim().toLowerCase() === ADMIN_EMAIL && (
+          <input
+            type="password"
+            className="w-full mb-3 px-4 py-2 rounded bg-slate-800 outline-none"
+            placeholder="Admin Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        )}
 
         <button
-          onClick={handleManualLogin}
-          className="at-btn w-full bg-cyan-600 py-3 rounded-2xl font-black"
+          onClick={handleLogin}
+          className="w-full mb-3 py-2 rounded-xl bg-cyan-600 font-bold active:scale-95 transition-transform"
         >
-          Admin Login
+          Login
         </button>
+
+        <div className="flex gap-2">
+          <button
+            onClick={handleGoogleLogin}
+            className="flex-1 py-2 rounded-xl bg-red-600 font-bold active:scale-95 transition-transform"
+          >
+            Google
+          </button>
+          <button
+            onClick={handleFacebookLogin}
+            className="flex-1 py-2 rounded-xl bg-blue-600 font-bold active:scale-95 transition-transform"
+          >
+            Facebook
+          </button>
+        </div>
       </div>
     </div>
   );
