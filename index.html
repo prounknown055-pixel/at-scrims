@@ -2,123 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-  />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AT Scrims</title>
 
-  <title>AT - Admin's Tournament</title>
-
-  <!-- Tailwind CDN (OK with Vite) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
   />
 
-  <style>
-    body {
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      overflow-x: hidden;
-      background-color: #020617;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    .at-btn {
-      position: relative;
-      overflow: hidden;
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-    }
-
-    .at-btn:active {
-      transform: scale(0.96) translateY(2px);
-      filter: brightness(0.9);
-    }
-
-    .at-btn::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 120%;
-      height: 120%;
-      background: radial-gradient(
-        circle,
-        rgba(255, 255, 255, 0.15) 0%,
-        transparent 70%
-      );
-      transform: translate(-50%, -50%) scale(0);
-      opacity: 0;
-      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-      pointer-events: none;
-    }
-
-    .at-btn:active::after {
-      transform: translate(-50%, -50%) scale(1.5);
-      opacity: 1;
-      transition: 0s;
-    }
-
-    @keyframes subtle-wiggle {
-      0%,
-      100% {
-        transform: rotate(0deg);
-      }
-      25% {
-        transform: rotate(1deg);
-      }
-      75% {
-        transform: rotate(-1deg);
-      }
-    }
-
-    .at-btn:hover:not(:disabled) {
-      animation: subtle-wiggle 0.3s ease-in-out infinite alternate;
-    }
-
-    .glass {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .bg-grid {
-      background-image: radial-gradient(
-        circle at 2px 2px,
-        rgba(0, 180, 216, 0.05) 1px,
-        transparent 0
-      );
-      background-size: 24px 24px;
-    }
-
-    .logo-glow {
-      filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
-    }
-  </style>
-
   <link rel="stylesheet" href="/index.css" />
 </head>
 
-<body class="text-white antialiased selection:bg-cyan-500 bg-grid">
+<body class="bg-[#020617] text-white">
   <div id="root"></div>
-
-  <!-- Vite entry -->
   <script type="module" src="/src/index.tsx"></script>
 </body>
 </html>
