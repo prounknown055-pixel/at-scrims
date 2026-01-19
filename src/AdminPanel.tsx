@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tournament, Registration, RegistrationStatus, GameType, ChatMessage, AppSettings, WithdrawalRequest } from '../types';
+import { Tournament, Registration, RegistrationStatus, GameType, ChatMessage, AppSettings, WithdrawalRequest } from './types';
 import { GAMES, ASSETS } from './constants';
 
 interface AdminPanelProps {
