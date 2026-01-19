@@ -1,12 +1,145 @@
-/* Global CSS */
-/* Required so Vite can resolve /index.css during build */
+/* ===============================
+   GLOBAL RESET & BASE
+   =============================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 html,
-body,
-#root {
+body {
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100%;
   background-color: #020617;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ===============================
+   SCROLLBAR (HIDDEN BUT USABLE)
+   =============================== */
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ===============================
+   BUTTON INTERACTION (USED EVERYWHERE)
+   =============================== */
+
+.at-btn {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.at-btn:active {
+  transform: scale(0.96);
+  filter: brightness(0.9);
+}
+
+/* ===============================
+   GLASS / CARD EFFECT
+   =============================== */
+
+.glass {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ===============================
+   BACKGROUND GRID (HOME UI)
+   =============================== */
+
+.bg-grid {
+  background-image: radial-gradient(
+    circle at 2px 2px,
+    rgba(0, 180, 216, 0.05) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+}
+
+/* ===============================
+   INPUTS & FORMS
+   =============================== */
+
+input,
+select,
+textarea {
+  outline: none;
+  color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+}
+
+/* ===============================
+   MODAL FIX (JoinModal)
+   =============================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 50;
+}
+
+/* ===============================
+   TEXT SELECTION
+   =============================== */
+
+::selection {
+  background-color: #22d3ee;
+  color: #020617;
+}
+
+/* ===============================
+   IMAGE / ICON SAFETY
+   =============================== */
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ===============================
+   ANIMATION SAFETY (NO JANK)
+   =============================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===============================
+   MOBILE FIXES
+   =============================== */
+
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
 }
