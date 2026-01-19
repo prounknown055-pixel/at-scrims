@@ -1,8 +1,12 @@
-/* Global CSS file */
+/* Global CSS */
 /* Required so Vite can resolve /index.css during build */
 
-html, body {
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
+  width: 100%;
+  min-height: 100%;
   background-color: #020617;
 }
