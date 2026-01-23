@@ -35,62 +35,6 @@ const App: React.FC = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
-
-  useEffect(() => {
-    // 1. Load Settings
-    const savedSettings = localStorage.getItem('at_settings');
-    if (savedSettings) {
-      setAppSettings(JSON.parse(savedSettings));
-    }
-
-    // 2. Load Data
-    const savedTournaments = localStorage.getItem('at_tourneys');
-    const savedRegs = localStorage.getItem('at_regs');
-    const savedChats = localStorage.getItem('at_chats');
-    const savedWithdrawals = localStorage.getItem('at_withdrawals');
-    const savedUser = localStorage.getItem('at_user_session');
-
-    if (savedTournaments) setTournaments(JSON.parse(savedTournaments));
-    if (savedRegs) setRegistrations(JSON.parse(savedRegs));
-    if (savedChats) setChatMessages(JSON.parse(savedChats));
-    if (savedWithdrawals) setWithdrawals(JSON.parse(savedWithdrawals));
-    
-    // Persistent Login Logic
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      if (parsedUser.isAdmin) setView('admin');
-    }
-
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-
-    const handleGlobalClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest('.at-btn')) playClick();
-    };
-
-    window.addEventListener('mousedown', handleGlobalClick);
-    return () => {
-      bgAudioRef.current?.pause();
-      window.removeEventListener('mousedown', handleGlobalClick);
-      clearTimeout(timer);
-    };
-  }, []);
-
-  // Sync state to LocalStorage
-  useEffect(() => { localStorage.setItem('at_tourneys', JSON.stringify(tournaments)); }, [tournaments]);
-  useEffect(() => { localStorage.setItem('at_regs', JSON.stringify(registrations)); }, [registrations]);
-  useEffect(() => { localStorage.setItem('at_chats', JSON.stringify(chatMessages)); }, [chatMessages]);
-  useEffect(() => { localStorage.setItem('at_withdrawals', JSON.stringify(withdrawals)); }, [withdrawals]);
-  useEffect(() => { localStorage.setItem('at_settings', JSON.stringify(appSettings)); }, [appSettings]);
-  useEffect(() => { 
-    if (user) {
-      localStorage.setItem('at_user_session', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('at_user_session');
-    }
-  }, [user]);
-
   // Audio engine
   useEffect(() => {
     if (bgAudioRef.current) bgAudioRef.current.pause();
