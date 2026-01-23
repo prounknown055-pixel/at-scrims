@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Tournament, RegistrationStatus } from "../types";
 import { ASSETS } from "../constants";
 import { supabase } from "../supabaseClient";
@@ -16,35 +16,12 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
   slotNumber,
   logoUrl,
 }) => {
-  const [showRoomInfo, setShowRoomInfo] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const isFull = tournament.filledSlots >= tournament.slots;
   const isApproved = userStatus === RegistrationStatus.APPROVED;
   const isPending = userStatus === RegistrationStatus.PENDING;
 
-  // ⏱ Room info timing logic (same as before)
-  useEffect(() => {
-    if (!isApproved) return;
-
-    const checkTime = () => {
-      const matchTime = new Date(tournament.startTime).getTime();
-      const now = new Date().getTime();
-      const diffMinutes = (matchTime - now) / (1000 * 60);
-
-      if (diffMinutes <= 15 && diffMinutes > -120) {
-        setShowRoomInfo(true);
-      } else {
-        setShowRoomInfo(false);
-      }
-    };
-
-    checkTime();
-    const timer = setInterval(checkTime, 30000);
-    return () => clearInterval(timer);
-  }, [isApproved, tournament.startTime]);
-
-  // 🔥 SUPABASE JOIN FUNCTION
   const handleJoin = async () => {
     if (isFull || userStatus) return;
 
@@ -76,9 +53,9 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/60 rounded-[40px] overflow-hidden border border-slate-800/80 hover:border-cyan-500/40 transition-all duration-500 group flex flex-col h-full shadow-2xl relative backdrop-blur-sm">
+    <div className="bg-slate-900/60 rounded-[40px] overflow-hidden border border-slate-800/80 hover:border-cyan-500/40 transition-all duration-500 flex flex-col h-full shadow-2xl relative backdrop-blur-sm">
       <div className="relative h-48 bg-slate-950/40 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80 z-10" />
 
         <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
           <span className="bg-cyan-600 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase">
@@ -89,7 +66,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
           </span>
         </div>
 
-        {isApproved && slotNumber && (
+        {isApproved && slotNumber !== undefined && (
           <div className="absolute top-5 right-5 z-20 animate-bounce">
             <span className="bg-emerald-600 text-white text-[10px] font-black px-4 py-2 rounded-xl">
               Slot {slotNumber}
@@ -134,7 +111,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
         <button
           onClick={handleJoin}
           disabled={isFull || userStatus !== undefined || loading}
-          className={`at-btn mt-auto w-full py-5 rounded-[28px] font-black text-[11px] uppercase tracking-[0.2em]
+          className={`mt-auto w-full py-5 rounded-[28px] font-black text-[11px] uppercase tracking-[0.2em]
             ${
               isApproved
                 ? "bg-emerald-600 text-white"
