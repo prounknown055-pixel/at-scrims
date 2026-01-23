@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { ASSETS } from "../constants";
 
@@ -15,27 +15,65 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔵 GOOGLE LOGIN
+  /* ================= SESSION LISTENER ================= */
+
+  useEffect(() => {
+    // Page reload / OAuth redirect ke baad auto login
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
+      if (session?.user) {
+        const user = session.user;
+
+        // Admin vs Player auto detect
+        if (user.email === ADMIN_EMAIL) {
+          onLogin(user.email!, "Super Admin");
+        } else {
+          onLogin(
+            user.email!,
+            user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              "Player"
+          );
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [onLogin]);
+
+  /* ================= GOOGLE LOGIN ================= */
+
   const loginWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
+    setError("");
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin, // ✅ Cloudflare safe
+        redirectTo: window.location.origin, // Cloudflare + Local both
       },
     });
+
+    if (error) setError(error.message);
   };
 
-  // 🔵 FACEBOOK LOGIN
+  /* ================= FACEBOOK LOGIN ================= */
+
   const loginWithFacebook = async () => {
-    await supabase.auth.signInWithOAuth({
+    setError("");
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "facebook",
       options: {
-        redirectTo: window.location.origin, // ✅ Cloudflare safe
+        redirectTo: window.location.origin,
       },
     });
+
+    if (error) setError(error.message);
   };
 
-  // 🔴 ADMIN LOGIN (Email + Password)
+  /* ================= ADMIN LOGIN ================= */
+
   const handleAdminAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -58,24 +96,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
     }
   };
 
-  // ✅ OAuth Login Detect (Google / Facebook)
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
-        const user = session.user;
-        onLogin(
-          user.email || "",
-          user.user_metadata?.full_name || "Player"
-        );
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+  /* ================= UI (UNCHANGED) ================= */
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#020617] px-4 relative overflow-hidden">
@@ -93,6 +114,10 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
             Admin's Tournament
           </h2>
         </div>
+
+        {error && (
+          <p className="text-red-400 text-xs text-center">{error}</p>
+        )}
 
         {/* PLAYER LOGIN */}
         {!showAdminLogin ? (
@@ -121,10 +146,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
         ) : (
           // ADMIN LOGIN
           <form onSubmit={handleAdminAuth} className="space-y-4">
-            {error && (
-              <p className="text-red-400 text-xs text-center">{error}</p>
-            )}
-
             <input
               type="email"
               placeholder="Admin Email"
