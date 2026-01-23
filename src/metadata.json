@@ -1,0 +1,11 @@
+
+{
+  "name": "AT Scrims",
+  "short_name": "AT",
+  "description": "Premium Scrims & Tournaments for BGMI, Free Fire, and COD Mobile. 24h Verified Manual Payments.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "theme_color": "#030712",
+  "background_color": "#030712"
+}
