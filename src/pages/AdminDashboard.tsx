@@ -11,6 +11,8 @@ import {
 } from '../types';
 
 const AdminDashboard = () => {
+  const [loading, setLoading] = useState(true);
+
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -23,43 +25,67 @@ const AdminDashboard = () => {
     clickSoundUrl: ''
   });
 
-  /* ================= FETCH ALL DATA ================= */
+  /* ================= FETCH ALL ================= */
+
+  const fetchAll = async () => {
+    setLoading(true);
+
+    const [
+      tournamentsRes,
+      registrationsRes,
+      chatsRes,
+      withdrawalsRes,
+      settingsRes
+    ] = await Promise.all([
+      supabase.from('tournaments').select('*').order('created_at', { ascending: false }),
+      supabase.from('registrations').select('*'),
+      supabase.from('chats').select('*').order('created_at'),
+      supabase.from('withdrawals').select('*'),
+      supabase.from('settings').select('*').single()
+    ]);
+
+    if (tournamentsRes.data) setTournaments(tournamentsRes.data);
+    if (registrationsRes.data) setRegistrations(registrationsRes.data);
+    if (chatsRes.data) setChatMessages(chatsRes.data);
+    if (withdrawalsRes.data) setWithdrawals(withdrawalsRes.data);
+    if (settingsRes.data) setAppSettings(settingsRes.data);
+
+    setLoading(false);
+  };
+
+  /* ================= FIRST LOAD ================= */
 
   useEffect(() => {
     fetchAll();
+
+    // 🔥 REALTIME LISTENERS
+    const channel = supabase
+      .channel('admin-live')
+      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+        fetchAll();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const fetchAll = async () => {
-    const [{ data: t }, { data: r }, { data: c }, { data: w }, { data: s }] =
-      await Promise.all([
-        supabase.from('tournaments').select('*'),
-        supabase.from('registrations').select('*'),
-        supabase.from('chats').select('*'),
-        supabase.from('withdrawals').select('*'),
-        supabase.from('settings').select('*').single()
-      ]);
+  /* ================= ACTIONS ================= */
 
-    if (t) setTournaments(t);
-    if (r) setRegistrations(r);
-    if (c) setChatMessages(c);
-    if (w) setWithdrawals(w);
-    if (s) setAppSettings(s);
-  };
-
-  /* ================= ACTION HANDLERS ================= */
-
-  const onAddTournament = async (tournament: Tournament) => {
-    await supabase.from('tournaments').insert(tournament);
-    fetchAll();
+  const onAddTournament = async (t: Tournament) => {
+    await supabase.from('tournaments').insert(t);
   };
 
   const onUpdateRegistration = async (id: string, status: RegistrationStatus) => {
     await supabase.from('registrations').update({ status }).eq('id', id);
-    fetchAll();
   };
 
   const onUpdateRoomDetails = async (tourneyId: string, details: string) => {
-    await supabase.from('tournaments').update({ roomDetails: details }).eq('id', tourneyId);
+    await supabase
+      .from('tournaments')
+      .update({ roomDetails: details })
+      .eq('id', tourneyId);
   };
 
   const onSendReply = async (email: string, text: string) => {
@@ -68,25 +94,26 @@ const AdminDashboard = () => {
       text,
       isAdminReply: true
     });
-    fetchAll();
   };
 
   const onDeclareWinner = async (tourneyId: string, userId: string, prize: number) => {
-    await supabase.from('tournaments').update({
-      winnerUserId: userId,
-      status: 'COMPLETED'
-    }).eq('id', tourneyId);
-
-    await supabase.from('wallets').update({
-      balance: supabase.rpc('add_balance', { amount: prize })
-    }).eq('userId', userId);
-
-    fetchAll();
+    await supabase
+      .from('tournaments')
+      .update({
+        winnerUserId: userId,
+        status: 'COMPLETED'
+      })
+      .eq('id', tourneyId);
   };
 
-  const onProcessWithdrawal = async (withdrawId: string, status: 'PAID' | 'REJECTED') => {
-    await supabase.from('withdrawals').update({ status }).eq('id', withdrawId);
-    fetchAll();
+  const onProcessWithdrawal = async (
+    withdrawId: string,
+    status: 'PAID' | 'REJECTED'
+  ) => {
+    await supabase
+      .from('withdrawals')
+      .update({ status })
+      .eq('id', withdrawId);
   };
 
   const onUpdateSettings = async (settings: AppSettings) => {
@@ -94,7 +121,15 @@ const AdminDashboard = () => {
     await supabase.from('settings').update(settings).eq('id', 1);
   };
 
-  /* ================= RENDER ================= */
+  /* ================= UI ================= */
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-white font-black">
+        Loading Admin Panel...
+      </div>
+    );
+  }
 
   return (
     <AdminPanel
