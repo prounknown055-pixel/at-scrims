@@ -98,20 +98,25 @@ const AdminDashboard = () => {
       .eq('id', tourneyId);
   };
 
-  const onSendReply = async (ticketId: string, text: string) => {
+  /* ✅ FIX 1: EMAIL based reply (AdminPanel compatible) */
+  const onSendReply = async (userEmail: string, text: string) => {
     await supabase
       .from('support_tickets')
       .update({
         admin_reply: text,
         status: 'RESOLVED'
       })
-      .eq('id', ticketId);
+      .eq('senderEmail', userEmail);
   };
 
+  /* ✅ FIX 2: winner save (future safe) */
   const onDeclareWinner = async (tourneyId: string, userId: string) => {
     await supabase
       .from('tournaments')
-      .update({ status: 'COMPLETED' })
+      .update({
+        status: 'COMPLETED',
+        winner_user_id: userId
+      })
       .eq('id', tourneyId);
   };
 
@@ -128,13 +133,16 @@ const AdminDashboard = () => {
   const onUpdateSettings = async (settings: AppSettings) => {
     setAppSettings(settings);
 
-    await supabase.from('app_settings').update({
-      maintenance: settings.isMaintenanceMode,
-      admin_upi: settings.upiId,
-      bg_music: settings.bgMusicUrl,
-      touch_sound: settings.clickSoundUrl,
-      logo_url: settings.logoUrl
-    }).eq('id', 1);
+    await supabase
+      .from('app_settings')
+      .update({
+        maintenance: settings.isMaintenanceMode,
+        admin_upi: settings.upiId,
+        bg_music: settings.bgMusicUrl,
+        touch_sound: settings.clickSoundUrl,
+        logo_url: settings.logoUrl
+      })
+      .eq('id', 1);
   };
 
   /* ================= UI ================= */
