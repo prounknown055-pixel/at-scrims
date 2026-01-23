@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Tournament, Registration, RegistrationStatus, GameType, ChatMessage, AppSettings, WithdrawalRequest } from './types';
-import { ADMIN_EMAIL, GAMES, ASSETS } from './constants';
+import { ADMIN_EMAIL, GAMES, ASSETS } from './constants.ts';
 import Navbar from './components/Navbar.tsx';
-import Auth from './components/Auth';
-import TournamentCard from './components/TournamentCard';
-import AdminPanel from './components/AdminPanel';
-import JoinModal from './components/JoinModal';
+import Auth from './components/Auth.tsx';
+import TournamentCard from './components/TournamentCard.tsx';
+import AdminPanel from './components/AdminPanel.tsx';
+import JoinModal from './components/JoinModal.tsx';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
