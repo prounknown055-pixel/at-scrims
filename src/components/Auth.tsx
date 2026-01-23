@@ -7,8 +7,6 @@ interface AuthProps {
   logoUrl: string;
 }
 
-const ADMIN_EMAIL = "admin@gmail.com"; // ← apna admin email
-
 const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
   const [emailInput, setEmailInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
@@ -18,15 +16,14 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
   /* ================= SESSION LISTENER ================= */
 
   useEffect(() => {
-    // Page reload / OAuth redirect ke baad auto login
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_, session) => {
       if (session?.user) {
         const user = session.user;
 
-        // Admin vs Player auto detect
-        if (user.email === ADMIN_EMAIL) {
+        // ✅ CHANGE 1: role-based admin check
+        if (user.user_metadata?.role === "admin") {
           onLogin(user.email!, "Super Admin");
         } else {
           onLogin(
@@ -51,11 +48,15 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin, // Cloudflare + Local both
+        redirectTo: window.location.origin,
       },
     });
 
-    if (error) setError(error.message);
+    // ✅ CHANGE 2: safe generic error
+    if (error) {
+      console.error(error);
+      setError("Authentication failed. Please try again.");
+    }
   };
 
   /* ================= FACEBOOK LOGIN ================= */
@@ -69,7 +70,11 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
       },
     });
 
-    if (error) setError(error.message);
+    // ✅ CHANGE 2 applied here also
+    if (error) {
+      console.error(error);
+      setError("Authentication failed. Please try again.");
+    }
   };
 
   /* ================= ADMIN LOGIN ================= */
@@ -88,8 +93,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
       return;
     }
 
-    if (data.user.email === ADMIN_EMAIL) {
-      onLogin(data.user.email, "Super Admin");
+    // ✅ CHANGE 1: role-based admin check
+    if (data.user.user_metadata?.role === "admin") {
+      onLogin(data.user.email!, "Super Admin");
     } else {
       setError("You are not authorized as Admin.");
       await supabase.auth.signOut();
@@ -104,7 +110,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
 
       <div className="max-w-md w-full space-y-8 bg-slate-900/60 backdrop-blur-2xl p-10 rounded-[48px] border border-cyan-500/20 relative z-10">
 
-        {/* LOGO */}
         <div className="text-center">
           <img
             src={logoUrl || ASSETS.officialLogo}
@@ -119,7 +124,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
           <p className="text-red-400 text-xs text-center">{error}</p>
         )}
 
-        {/* PLAYER LOGIN */}
         {!showAdminLogin ? (
           <div className="space-y-4">
             <button
@@ -144,7 +148,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
             </button>
           </div>
         ) : (
-          // ADMIN LOGIN
           <form onSubmit={handleAdminAuth} className="space-y-4">
             <input
               type="email"
