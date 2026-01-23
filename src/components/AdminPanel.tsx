@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../supabaseClient';
 import { Tournament, Registration, RegistrationStatus, GameType, ChatMessage, AppSettings, WithdrawalRequest } from '../types';
 import { GAMES, ASSETS } from '../constants';
 
