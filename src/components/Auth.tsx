@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { ASSETS } from "../constants";
 
@@ -7,7 +7,7 @@ interface AuthProps {
   logoUrl: string;
 }
 
-const ADMIN_EMAIL = "admin@gmail.com"; // ← apna admin email yahan rakho
+const ADMIN_EMAIL = "admin@gmail.com"; // ← apna admin email
 
 const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
   const [emailInput, setEmailInput] = useState("");
@@ -19,6 +19,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
   const loginWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: window.location.origin, // ✅ Cloudflare safe
+      },
     });
   };
 
@@ -26,10 +29,13 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
   const loginWithFacebook = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "facebook",
+      options: {
+        redirectTo: window.location.origin, // ✅ Cloudflare safe
+      },
     });
   };
 
-  // 🔴 ADMIN LOGIN (EMAIL + PASSWORD via Supabase)
+  // 🔴 ADMIN LOGIN (Email + Password)
   const handleAdminAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -44,7 +50,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
       return;
     }
 
-    // ✅ Admin check
     if (data.user.email === ADMIN_EMAIL) {
       onLogin(data.user.email, "Super Admin");
     } else {
@@ -52,6 +57,25 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
       await supabase.auth.signOut();
     }
   };
+
+  // ✅ OAuth Login Detect (Google / Facebook)
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        const user = session.user;
+        onLogin(
+          user.email || "",
+          user.user_metadata?.full_name || "Player"
+        );
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#020617] px-4 relative overflow-hidden">
@@ -77,7 +101,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
               onClick={loginWithGoogle}
               className="at-btn w-full py-5 bg-white text-black rounded-2xl font-black"
             >
-              <i className="fab fa-google text-red-500 mr-3"></i>
               Login with Google
             </button>
 
@@ -85,7 +108,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, logoUrl }) => {
               onClick={loginWithFacebook}
               className="at-btn w-full py-5 bg-[#1877F2] text-white rounded-2xl font-black"
             >
-              <i className="fab fa-facebook mr-3"></i>
               Login with Facebook
             </button>
 
