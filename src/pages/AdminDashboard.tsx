@@ -33,37 +33,47 @@ const AdminDashboard = () => {
     const [
       tournamentsRes,
       registrationsRes,
-      chatsRes,
-      withdrawalsRes,
+      ticketsRes,
+      payoutsRes,
       settingsRes
     ] = await Promise.all([
       supabase.from('tournaments').select('*').order('created_at', { ascending: false }),
       supabase.from('registrations').select('*'),
-      supabase.from('chats').select('*').order('created_at'),
-      supabase.from('withdrawals').select('*'),
-      supabase.from('settings').select('*').single()
+      supabase.from('support_tickets').select('*').order('created_at'),
+      supabase.from('payout_requests').select('*'),
+      supabase.from('app_settings').select('*').single()
     ]);
 
     if (tournamentsRes.data) setTournaments(tournamentsRes.data);
     if (registrationsRes.data) setRegistrations(registrationsRes.data);
-    if (chatsRes.data) setChatMessages(chatsRes.data);
-    if (withdrawalsRes.data) setWithdrawals(withdrawalsRes.data);
-    if (settingsRes.data) setAppSettings(settingsRes.data);
+    if (ticketsRes.data) setChatMessages(ticketsRes.data);
+    if (payoutsRes.data) setWithdrawals(payoutsRes.data);
+
+    if (settingsRes.data) {
+      setAppSettings({
+        isMaintenanceMode: settingsRes.data.maintenance,
+        logoUrl: settingsRes.data.logo_url,
+        upiId: settingsRes.data.admin_upi,
+        bgMusicUrl: settingsRes.data.bg_music,
+        clickSoundUrl: settingsRes.data.touch_sound
+      });
+    }
 
     setLoading(false);
   };
 
-  /* ================= FIRST LOAD ================= */
+  /* ================= FIRST LOAD + REALTIME ================= */
 
   useEffect(() => {
     fetchAll();
 
-    // 🔥 REALTIME LISTENERS
     const channel = supabase
       .channel('admin-live')
-      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
-        fetchAll();
-      })
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public' },
+        () => fetchAll()
+      )
       .subscribe();
 
     return () => {
@@ -84,25 +94,24 @@ const AdminDashboard = () => {
   const onUpdateRoomDetails = async (tourneyId: string, details: string) => {
     await supabase
       .from('tournaments')
-      .update({ roomDetails: details })
+      .update({ admin_note: details })
       .eq('id', tourneyId);
   };
 
-  const onSendReply = async (email: string, text: string) => {
-    await supabase.from('chats').insert({
-      senderEmail: email,
-      text,
-      isAdminReply: true
-    });
+  const onSendReply = async (ticketId: string, text: string) => {
+    await supabase
+      .from('support_tickets')
+      .update({
+        admin_reply: text,
+        status: 'RESOLVED'
+      })
+      .eq('id', ticketId);
   };
 
-  const onDeclareWinner = async (tourneyId: string, userId: string, prize: number) => {
+  const onDeclareWinner = async (tourneyId: string, userId: string) => {
     await supabase
       .from('tournaments')
-      .update({
-        winnerUserId: userId,
-        status: 'COMPLETED'
-      })
+      .update({ status: 'COMPLETED' })
       .eq('id', tourneyId);
   };
 
@@ -111,14 +120,21 @@ const AdminDashboard = () => {
     status: 'PAID' | 'REJECTED'
   ) => {
     await supabase
-      .from('withdrawals')
+      .from('payout_requests')
       .update({ status })
       .eq('id', withdrawId);
   };
 
   const onUpdateSettings = async (settings: AppSettings) => {
     setAppSettings(settings);
-    await supabase.from('settings').update(settings).eq('id', 1);
+
+    await supabase.from('app_settings').update({
+      maintenance: settings.isMaintenanceMode,
+      admin_upi: settings.upiId,
+      bg_music: settings.bgMusicUrl,
+      touch_sound: settings.clickSoundUrl,
+      logo_url: settings.logoUrl
+    }).eq('id', 1);
   };
 
   /* ================= UI ================= */
