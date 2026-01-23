@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from './supabaseClient';
 
 interface AuthProps {
   onLogin: (email: string, name: string) => void;
